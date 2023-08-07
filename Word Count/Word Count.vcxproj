@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{739787FA-45C1-42C1-9DB6-E39F3A7FBD05}</ProjectGuid>
-    <RootNamespace>For_loop</RootNamespace>
+    <ProjectGuid>{16FD01DB-7653-4DDA-96C1-079780C84664}</ProjectGuid>
+    <RootNamespace>Word_Count</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

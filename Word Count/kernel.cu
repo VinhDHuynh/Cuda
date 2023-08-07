@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <string>
+#include <fstream> 
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
 
@@ -19,9 +20,24 @@ __global__ void countWordsGPU(const char* words, int* count, int numWords) {
 }
 
 int main() {
-    // Read the document and split it into words (CPU task)
-    std::string document = "Your document contents here Your document contents here ";
-    std::string delimiter = " "; // Assuming words are separated by space characters
+    std::string filename;
+    std::cout << "Enter the filename: ";
+    std::cin >> filename;
+
+    // Read the document from the file
+    std::ifstream inputFile(filename);
+    if (!inputFile) {
+        std::cerr << "Error opening file." << std::endl;
+        return 1;
+    }
+
+    std::string document;
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        document += line;
+        document += "\n";
+    }
+    inputFile.close();
 
     // Convert the document to a char array to transfer to GPU
     char* wordsGPU;
@@ -34,15 +50,17 @@ int main() {
     cudaMemset(wordCountGPU, 0, sizeof(int));
 
     // GPU configuration
-    int threadsPerBlock = 4;
-    int numBlocks = 2;
+    int threadsPerBlock = 256;
+    int numBlocks = (document.size() + threadsPerBlock - 1) / threadsPerBlock;
 
     // Launch the GPU kernel
-    countWordsGPU <<<numBlocks, threadsPerBlock >>> (wordsGPU, wordCountGPU, document.size());
+    countWordsGPU << <numBlocks, threadsPerBlock >> > (wordsGPU, wordCountGPU, document.size());
 
     // Transfer the result back to CPU
     int wordCount;
     cudaMemcpy(&wordCount, wordCountGPU, sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaDeviceSynchronize();
 
     // Free memory on GPU
     cudaFree(wordsGPU);
